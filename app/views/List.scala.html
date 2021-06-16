@@ -1,0 +1,19 @@
+@*
+ *
+ * list page
+ *
+ *@
+@import lib.model.Todo
+@import model._
+
+@(vv : ViewValueTodo)
+
+@common.Default(vv){
+     
+  <ul>
+   @for(todo <- vv.v) {
+     <li>@todo.title,@todo.state.name</li>
+   }
+ </ul>
+
+}
