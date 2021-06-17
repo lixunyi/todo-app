@@ -19,7 +19,8 @@ case class Todo(
   body:        String,
   state:       Status,
   updatedAt:   LocalDateTime = NOW,
-  createdAt:   LocalDateTime = NOW
+  createdAt:   LocalDateTime = NOW,
+  var category : Category = null
 ) extends EntityModel[Id]
 
 // コンパニオンオブジェクト

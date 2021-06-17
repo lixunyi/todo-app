@@ -9,11 +9,32 @@
 @(vv : ViewValueTodo)
 
 @common.Default(vv){
-     
-  <ul>
-   @for(todo <- vv.v) {
-     <li>@todo.title,@todo.state.name</li>
+   
+  <table id="customers">
+   <tr>
+      <th>タイトル</th>
+      <th>本文</th>
+      <th>ステータス</th>
+      <th>カテゴリ</th>
+      <th>操作</th>
+   </tr>
+   @for(todo <- vv.todos) {
+      <tr style="background-color: @todo.category.color.value">
+         <td>@todo.title</td>
+         <td>@todo.body</td>
+         <td>@todo.state.name</td>
+         <td>@todo.category.name</td>
+         <td>
+            <a href="/">更新</a> |
+            <a href="/">削除</a>
+         </td>
+      </tr>
    }
- </ul>
+
+  </table> 
+
+  <br/>
+  <a href="/addTodo" style="float: right;">Todoを追加する</a> 
+  
 
 }

@@ -1,0 +1,31 @@
+@*
+ *
+ * list page
+ *
+ *@
+@import model._
+@import controllers.TodoForm._
+
+@import helper._
+
+
+@(vv : ViewValueTodo,form: Form[TodoForm.Todo])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
+
+
+@common.Default(vv){
+
+  
+   @helper.form(action = routes.ListController.addTodo()) {
+
+      @CSRF.formField
+      
+      @helper.inputText(form("title"))
+            
+      @helper.textarea(form("body"))
+
+      @helper.select(form("category"),options = vv.categorys)
+           
+      <input type="submit" value="追加"/>
+          
+   }
+}
