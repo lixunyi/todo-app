@@ -23,67 +23,78 @@ import TodoForm._
 class ListController @Inject()(val controllerComponents: ControllerComponents) extends BaseController  with I18nSupport{
 
 
-  def index() = Action { implicit req =>
+  def index() = Action.async { implicit req =>
 
-    val categorys = Await.result(CategoryRepository.getAll(), Duration.Inf).map(_.v)
-    val todoList =  Await.result(TodoRepository.getAll(), Duration.Inf).map(_.v).map(todo  => {
-      
-      val ca = categorys.find(c => c.id.get == todo.category_id).get
-      if(ca != None) todo.category = ca
-      todo
-    })
+    for{
+       todos <- TodoRepository.getAll()
+       cates <- CategoryRepository.getAll()
+    }yield {
+        val todoList  = todos.map(_.v) map ( todo  => {
+          val ca = cates.find(c => c.id == todo.category_id).get
+            if(ca != None) todo.category = ca.v
+            todo
+          }
+        )
 
-    val vv = ViewValueTodo(
-      todos  = todoList,
-      categorys  = null,
-      title  = "Todo list",
-      cssSrc = Seq("main.css","list.css"),
-      jsSrc  = Seq("main.js")
-    )
+        val vv = ViewValueTodo(
+          todos      = todoList,
+          categorys  = null,
+          title      = "Todo list",
+          cssSrc     = Seq("main.css","list.css"),
+          jsSrc      = Seq("main.js")
+        )
+       
+        Ok(views.html.List(vv))
+    }
 
-    Ok(views.html.List(vv))
   }
 
-  def addTodoPage() = Action { implicit request =>
+  def addTodoPage() = Action.async  { implicit request =>
     
-    val categorys = Await.result(CategoryRepository.getAll(), Duration.Inf).map(_.v).map(c => c.id.get.toString -> c.name)
-    
-    val vv = ViewValueTodo(
-      todos  = null,
-      categorys  = categorys,
-      title  = "add Todo task",
-      cssSrc = Seq("main.css","list.css"),
-      jsSrc  = Seq("main.js")
-    )
-    
-    Ok(views.html.AddTodo(vv,form))
+    for{
+      categorys <- CategoryRepository.getAll()
+    }yield{  
+        val vv = ViewValueTodo(
+          todos      = null,
+          categorys  = categorys.map(c => c.id.toString -> c.v.name),
+          title      = "add Todo task",
+          cssSrc     = Seq("main.css","list.css"),
+          jsSrc      = Seq("main.js")
+        )
+        
+        Ok(views.html.AddTodo(vv,form))
+    }
   }
 
-  def addTodo() = Action { implicit request =>
+  def addTodo() = Action.async { implicit request =>
 
     val errorFunction = { formWithErrors: Form[Todo] =>
       
-      val categorys = Await.result(CategoryRepository.getAll(), Duration.Inf).map(_.v).map(c => c.id.get.toString -> c.name)
-
-      val vv = ViewValueTodo(
-        todos  = null,
-        categorys  = categorys,
-        title  = "add Todo task",
-        cssSrc = Seq("main.css","list.css"),
-        jsSrc  = Seq("main.js")
-      )
-
-      BadRequest(views.html.AddTodo(vv, formWithErrors))
+      for{
+        categorys <- CategoryRepository.getAll()
+      }yield{  
+          val vv = ViewValueTodo(
+            todos     = null,
+            categorys = categorys.map(c => c.id.toString -> c.v.name),
+            title     = "add Todo task",
+            cssSrc    = Seq("main.css","list.css"),
+            jsSrc     = Seq("main.js")
+          )
+          
+          BadRequest(views.html.AddTodo(vv, formWithErrors))
+      }
     }
 
     val successFunction = { data: Todo =>
 
-      // TODO add todo to database!!!
-      Redirect(routes.ListController.index).flashing("info" -> "todo added!")
+      val todo = lib.model.Todo.apply(lib.model.Category.Id(data.category_id(0).toInt), data.title,data.body)
+
+      TodoRepository.add(todo).map( id => {
+         Redirect(routes.ListController.index).flashing("info" -> "todo added!")
+      })
+
     }
 
-    val formValidationResult = form.bindFromRequest()
-    formValidationResult.fold(errorFunction, successFunction)
+    form.bindFromRequest() fold(errorFunction, successFunction)
   }
-
 }

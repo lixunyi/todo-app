@@ -13,7 +13,6 @@
 
 
 @common.Default(vv){
-
   
    @helper.form(action = routes.ListController.addTodo()) {
 
@@ -23,7 +22,7 @@
             
       @helper.textarea(form("body"))
 
-      @helper.select(form("category"),options = vv.categorys)
+      @helper.select(form("category_id[]"),options = vv.categorys)
            
       <input type="submit" value="追加"/>
           
