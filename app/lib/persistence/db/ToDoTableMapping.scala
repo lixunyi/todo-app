@@ -36,7 +36,7 @@ case class TodoTable[P <: JdbcProfile]()(implicit val driver: P)
     import Todo._
     // Columns
     /* @1 */ def id          = column[Id]            ("id",          O.UInt64, O.PrimaryKey, O.AutoInc)
-    /* @2 */ def category_id = column[Category.Id]           ("category_id", O.UInt8)
+    /* @2 */ def category_id = column[Category.Id]   ("category_id", O.UInt8)
     /* @3 */ def title       = column[String]        ("title",       O.Utf8Char255)
     /* @4 */ def body        = column[String]        ("body",        O.Utf8Char255)
     /* @5 */ def state       = column[Status]        ("state",       O.UInt8)

@@ -6,7 +6,7 @@
 @import lib.model.Todo
 @import model._
 
-@(vv : ViewValueTodo)
+@(vv : ViewValueTodos)
 
 @common.Default(vv){
    
@@ -25,8 +25,8 @@
          <td>@todo.state.name</td>
          <td>@todo.category.name</td>
          <td>
-            <a href="/">更新</a> |
-            <a href="/">削除</a>
+            <a href="/editTodo/@todo.id">更新</a> |
+            <a href="/deleteTodo/@todo.id">削除</a>
          </td>
       </tr>
    }

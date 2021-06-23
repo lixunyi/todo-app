@@ -18,11 +18,13 @@
 
       @CSRF.formField
       
+      <input type="hidden" name="state" value="0"/>
+
       @helper.inputText(form("title"))
             
       @helper.textarea(form("body"))
 
-      @helper.select(form("category_id[]"),options = vv.categorys)
+      @helper.select(form("category_id"),options = vv.categorys)
            
       <input type="submit" value="追加"/>
           

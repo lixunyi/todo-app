@@ -8,6 +8,10 @@ GET     /                             controllers.HomeController.index
 GET     /todos                        controllers.ListController.index
 GET     /addTodo                      controllers.ListController.addTodoPage
 POST    /addTodo                      controllers.ListController.addTodo
+GET     /deleteTodo/:id               controllers.ListController.delete(id:Long)
+GET     /editTodo/:id                 controllers.ListController.editTodoPage(id:Long)
+POST    /editTodo/:id                 controllers.ListController.editTodo(id:Long)
+
 
 
 

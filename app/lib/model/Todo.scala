@@ -53,4 +53,19 @@ object Todo {
       )
     )
   }
+
+   def update(id: Long,category_id: Int, title: String,body: String,state: Int): EmbeddedId = {
+    new Entity.EmbeddedId(
+      new Todo(
+        id          = Option(Id(id)),
+        category_id = Category.Id(category_id),
+        title       = title,
+        body        = body,
+        state       = Status(state.toShort),
+        updatedAt   = NOW,
+      )
+    )
+  }
+
+
 }
