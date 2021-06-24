@@ -9,14 +9,20 @@
 @import helper._
 
 
-@(vv : ViewValueTodo,form: Form[TodoForm.Todo],id: Long)(implicit request: RequestHeader, messagesProvider: MessagesProvider)
+@(vv : ViewValueTodo,form: Form[TodoForm.Todo])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
 
 
 @common.Default(vv){
   
-   @helper.form(action = routes.ListController.editTodo(id)) {
+   @helper.form(action = routes.TodoController.editTodo()) {
 
       @CSRF.formField
+      
+      @if(form.errors.length > 0){
+         <input type="hidden" name="id" value="@form.data("id")"/>
+      }else{
+         <input type="hidden" name="id" value="@form.get.id"/>
+      }
       
       @helper.inputText(form("title"))
             

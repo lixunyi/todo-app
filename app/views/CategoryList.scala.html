@@ -1,0 +1,32 @@
+@import lib.model.Category
+@import model._
+
+@(vv : ViewValueCategorys)
+
+@common.Default(vv){
+   
+  <table id="customers">
+   <tr>
+      <th>カテゴリ</th>
+      <th>slug</th>
+      <th>色</th>
+      <th>操作</th>
+   </tr>
+   @for(category <- vv.categorys) {
+      <tr>
+         <td>@category.name</td>
+         <td>@category.slug</td>
+         <td>@category.color</td>
+         <td>
+            <a href="/editCategory/@category.id">更新</a> |
+            <a href="/deleteCategory/@category.id">削除</a>
+         </td>
+      </tr>
+   }
+
+  </table> 
+
+  <br/>
+  <a href="/addCategory" style="float: right;">Categoryを追加する</a> 
+  
+}

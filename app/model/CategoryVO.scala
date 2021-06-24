@@ -1,18 +1,16 @@
 package model
 
-import lib.model.Todo
+import lib.model.Category
 
 // Topページのviewvalue
-case class ViewValueTodos(
-	todos:     Seq[Todo],
+case class ViewValueCategorys(
+	categorys: Seq[Category],
 	title:     String,
 	cssSrc:    Seq[String],
 	jsSrc:     Seq[String],
 ) extends ViewValueCommon
 
-// Topページのviewvalue
-case class ViewValueTodo(
-	categorys: Seq[(String,String)],
+case class ViewValueCategory(
 	title:     String,
 	cssSrc:    Seq[String],
 	jsSrc:     Seq[String],

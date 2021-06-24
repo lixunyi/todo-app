@@ -1,0 +1,24 @@
+@import model._
+@import controllers.CategoryForm._
+@import helper._
+
+@(vv : ViewValueCategory,form: Form[CategoryForm.Category])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
+
+@common.Default(vv){
+  
+   @helper.form(action = routes.CategoryController.addCategory()) {
+
+      @CSRF.formField
+      
+      <input type="hidden" name="id" value="0"/>
+
+      @helper.inputText(form("name"))
+            
+      @helper.inputText(form("slug"))
+
+      @helper.inputText(form("color"))
+           
+      <input type="submit" value="追加"/>
+          
+   }
+}

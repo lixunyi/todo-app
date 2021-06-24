@@ -1,24 +1,18 @@
-@*
- *
- * list page
- *
- *@
 @import model._
 @import controllers.TodoForm._
 
 @import helper._
 
-
 @(vv : ViewValueTodo,form: Form[TodoForm.Todo])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
-
 
 @common.Default(vv){
   
-   @helper.form(action = routes.ListController.addTodo()) {
+   @helper.form(action = routes.TodoController.addTodo()) {
 
       @CSRF.formField
       
       <input type="hidden" name="state" value="0"/>
+      <input type="hidden" name="id" value="0"/>
 
       @helper.inputText(form("title"))
             
