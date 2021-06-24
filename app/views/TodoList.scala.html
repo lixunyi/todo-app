@@ -19,11 +19,22 @@
       <th>操作</th>
    </tr>
    @for(todo <- vv.todos) {
-      <tr style="background-color: @todo.category.color.value">
+      @if(todo.category != null){
+         <tr style="background-color: @todo.category.color.value">
+      }else{
+         <tr>
+      }
+      
          <td>@todo.title</td>
          <td>@todo.body</td>
          <td>@todo.state.name</td>
-         <td>@todo.category.name</td>
+         @if(todo.category != null){
+            <td>@todo.category.name</td>
+         }else{
+            <td>どのカテゴリにも紐づいていない</td>
+         }
+        
+         
          <td>
             <a href="/editTodo/@todo.id">更新</a> |
             <a href="/deleteTodo/@todo.id">削除</a>

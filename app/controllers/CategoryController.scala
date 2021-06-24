@@ -29,10 +29,10 @@ class CategoryController @Inject()(val controllerComponents: ControllerComponent
 
 	def addCategoryPage() = Action { implicit request =>
 		Ok(views.html.AddCategory(ViewValueCategory(
-				title  = "add Category",
-				cssSrc = Seq("main.css"),
-				jsSrc  = Seq("main.js")
-			),form))
+			title  = "add Category",
+			cssSrc = Seq("main.css"),
+			jsSrc  = Seq("main.js")
+		),form))
 	}
 
 	def addCategory() = Action async{ implicit request =>
@@ -56,21 +56,36 @@ class CategoryController @Inject()(val controllerComponents: ControllerComponent
 	}
 
 	def delete(id: Long) = Action.async  { implicit request =>
-		
-		for{
-			c <- CategoryRepository.remove(lib.model.Category.Id(id))
-		}yield{  
-			Redirect(routes.CategoryController.index)
+
+		val cid   = lib.model.Category.Id(id)
+		val noCid = lib.model.Category.Id(0)
+
+		CategoryRepository.get(cid) flatMap { entity =>
+			if(entity.isDefined){	
+				CategoryRepository.remove(cid) flatMap { c => 
+					TodoRepository.getAllByCategory(cid) map { todoList =>
+						todoList.map(todo => {
+							val newTodo = todo.map(_.copy(category_id = noCid))
+							TodoRepository.update(newTodo)
+						})
+						Redirect(routes.CategoryController.index)
+					}
+				}
+			}else{
+				Future{
+					Redirect(routes.CategoryController.index)//assume go to error page	
+				}
+			}
+			
 		}
 	}
 
 	def editCategoryPage(id: Long) = Action.async  { implicit request =>
 
 		CategoryRepository.get(lib.model.Category.Id(id)) map { entity =>
-			
 			if(entity.isDefined){
 				
-				val c = entity.get.v
+				val c          = entity.get.v
 				val filledForm = form.fill(Category(id,c.name,c.slug,c.color.code))
 				
 				Ok(views.html.EditCategory(ViewValueCategory(
@@ -82,7 +97,6 @@ class CategoryController @Inject()(val controllerComponents: ControllerComponent
 			}else{
 				Redirect(routes.CategoryController.index)//assume go to error page
 			}
-				
 		}
 	}
 
@@ -99,9 +113,7 @@ class CategoryController @Inject()(val controllerComponents: ControllerComponent
 		}, { data: Category =>
 			CategoryRepository.get(lib.model.Category.Id(data.id)) flatMap { entity =>
 				if(entity.isDefined){
-				
 					import lib.model.Category.Color
-
 					val category    = entity.get
 					val newCategory = category.map(_.copy(
 						name 		= data.name,

@@ -3,6 +3,7 @@ package lib.persistence
 import scala.concurrent.Future
 import ixias.persistence.SlickRepository
 import lib.model.Todo
+import lib.model.Category
 import slick.jdbc.JdbcProfile
 
 // TodoRepository: TodoTableへのクエリ発行を行うRepository層の定義
@@ -27,6 +28,15 @@ case class TodoRepository[P <: JdbcProfile]()(implicit val driver: P)
 		*/
 	def getAll(): Future[Seq[EntityEmbeddedId]] =
 		RunDBAction(TodoTable, "slave") { _
+			.result
+		}
+
+	/**
+	* Get All Todo Data by Category
+	*/
+	def getAllByCategory(cid: Category.Id): Future[Seq[EntityEmbeddedId]] =
+		RunDBAction(TodoTable, "slave") { _
+			.filter(_.category_id === cid)
 			.result
 		}
 

@@ -22,21 +22,20 @@ class TodoController @Inject()(val controllerComponents: ControllerComponents) e
 			todos <- TodoRepository.getAll()
 			cates <- CategoryRepository.getAll()
 		}yield {
-			val todoList  = todos.map(_.v) map ( todo  => {
-				val ca = cates.find(c => c.id == todo.category_id).get
+			val todoList = todos.map(_.v) map ( todo  => {
+				if(todo.category_id != 0){
+					val ca = cates.find(c => c.id == todo.category_id).get
 					todo.category = ca.v
-					todo
 				}
-			)
-
-			val vv = ViewValueTodos(
+				todo
+			})
+		
+			Ok(views.html.TodoList(ViewValueTodos(
 				todos  = todoList,
 				title  = "Todo list",
 				cssSrc = Seq("main.css","list.css"),
 				jsSrc  = Seq("main.js")
-			)
-		
-			Ok(views.html.TodoList(vv))
+			)))
 		}
 
   	}
@@ -46,14 +45,13 @@ class TodoController @Inject()(val controllerComponents: ControllerComponents) e
 		for{
 			categorys <- CategoryRepository.getAll()
 		}yield{  
-			val vv = ViewValueTodo(
-				categorys = categorys.map(c => c.id.toString -> c.v.name),
+			val cats = categorys.foldLeft(Seq(("0","未選択")))((acc, n) => acc :+ (n.id.toString,n.v.name))
+			Ok(views.html.AddTodo(ViewValueTodo(
+				categorys = cats,
 				title     = "add Todo task",
 				cssSrc    = Seq("main.css","list.css"),
 				jsSrc     = Seq("main.js")
-			)
-			
-			Ok(views.html.AddTodo(vv,form))
+			),form))
 		}
 	}
 
@@ -64,18 +62,17 @@ class TodoController @Inject()(val controllerComponents: ControllerComponents) e
 			for{
 				categorys <- CategoryRepository.getAll()
 			}yield{  
-				val vv = ViewValueTodo(
-					categorys = categorys.map(c => c.id.toString -> c.v.name),
+				val cats = categorys.foldLeft(Seq(("0","未選択")))((acc, n) => acc :+ (n.id.toString,n.v.name))
+				BadRequest(views.html.AddTodo(ViewValueTodo(
+					categorys = cats,
 					title     = "add Todo task",
 					cssSrc    = Seq("main.css","list.css"),
 					jsSrc     = Seq("main.js")
-				)
-				BadRequest(views.html.AddTodo(vv, formWithErrors))
+				), formWithErrors))
 			}
 		}, { data: Todo =>
 
 			val todo = lib.model.Todo.apply(lib.model.Category.Id(data.category_id), data.title,data.body)
-
 			TodoRepository.add(todo).map( id => {
 				Redirect(routes.TodoController.index)
 			})
@@ -96,17 +93,16 @@ class TodoController @Inject()(val controllerComponents: ControllerComponents) e
 		TodoRepository.get(lib.model.Todo.Id(id)) flatMap { entity =>
 			CategoryRepository.getAll() map { categorys =>
 				if(entity.isDefined){
-					val vv = ViewValueTodo(
-						categorys = categorys.map(c => c.id.toString -> c.v.name),
+					val cats 	   = categorys.foldLeft(Seq(("0","未選択")))((acc, n) => acc :+ (n.id.toString,n.v.name))
+					val t 		   = entity.get.v
+					val filledForm = form.fill(Todo(id,t.title,t.body,t.category_id.toInt,t.state.code))
+			
+					Ok(views.html.EditTodo(ViewValueTodo(
+						categorys = cats,
 						title     = "edit Todo task",
 						cssSrc    = Seq("main.css","list.css"),
 						jsSrc     = Seq("main.js")
-					)
-
-					val t = entity.get.v
-					val filledForm = form.fill(Todo(id,t.title,t.body,t.category_id.toInt,t.state.code))
-			
-					Ok(views.html.EditTodo(vv,filledForm))
+					),filledForm))
 				}else{
 					Redirect(routes.TodoController.index)//go to error page
 				}
@@ -121,15 +117,13 @@ class TodoController @Inject()(val controllerComponents: ControllerComponents) e
 			for{
 				categorys <- CategoryRepository.getAll()
 			}yield{  
-				
-				val vv = ViewValueTodo(
-					categorys = categorys.map(c => c.id.toString -> c.v.name),
+				val cats = categorys.foldLeft(Seq(("0","未選択")))((acc, n) => acc :+ (n.id.toString,n.v.name))
+				BadRequest(views.html.EditTodo(ViewValueTodo(
+					categorys = cats,
 					title     = "edit Todo task",
 					cssSrc    = Seq("main.css","list.css"),
 					jsSrc     = Seq("main.js")
-				)
-				
-				BadRequest(views.html.EditTodo(vv, formWithErrors))
+				), formWithErrors))
 			}
 		}, { data: Todo =>
 			TodoRepository.get(lib.model.Todo.Id(data.id)) flatMap { entity =>
@@ -147,15 +141,13 @@ class TodoController @Inject()(val controllerComponents: ControllerComponents) e
 					}	
 				}else{
 					CategoryRepository.getAll() map { categorys =>
-				
-						val vv = ViewValueTodo(
-							categorys = categorys.map(c => c.id.toString -> c.v.name),
+						val cats = categorys.foldLeft(Seq(("0","未選択")))((acc, n) => acc :+ (n.id.toString,n.v.name))
+						BadRequest(views.html.EditTodo(ViewValueTodo(
+							categorys = cats,
 							title     = "edit Todo task",
 							cssSrc    = Seq("main.css","list.css"),
 							jsSrc     = Seq("main.js")
-						)
-						
-						BadRequest(views.html.EditTodo(vv, form))
+						), form))
 					}
 				}
 			}
